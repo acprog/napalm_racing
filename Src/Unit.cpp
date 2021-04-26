@@ -1,3 +1,10 @@
+/* naPalm Racing
+
+  Copyright (C) 2004
+
+  Author: Alexander Semenov <acmain@gmail.com>
+*/
+
 #include "unit.h"
 #include "fixed.h"
 #include "cfg.h"

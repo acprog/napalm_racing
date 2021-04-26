@@ -1,3 +1,10 @@
+/* naPalm Racing
+
+  Copyright (C) 2004
+
+  Author: Alexander Semenov <acmain@gmail.com>
+*/
+
 #ifndef	_OBJECT_H_
 #define	_OBJECT_H_
 

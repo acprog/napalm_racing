@@ -1,3 +1,10 @@
+/* naPalm Racing
+
+  Copyright (C) 2004
+
+  Author: Alexander Semenov <acmain@gmail.com>
+*/
+
 #include "sound.h"
 
 bool	sound::audio_driver=false;

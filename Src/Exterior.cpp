@@ -1,3 +1,10 @@
+/* naPalm Racing
+
+  Copyright (C) 2004
+
+  Author: Alexander Semenov <acmain@gmail.com>
+*/
+
 #include "exterior.h"
 
 projected_point exterior::immovable[MAX_VERTEXES];

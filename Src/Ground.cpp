@@ -1,3 +1,9 @@
+/* naPalm Racing
+
+  Copyright (C) 2004
+
+  Author: Alexander Semenov <acmain@gmail.com>
+*/
 #include "ground.h"
 #include "world.h"
 #include "unit.h"
