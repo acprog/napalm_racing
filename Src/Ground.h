@@ -65,12 +65,12 @@ struct	packed_1bit
 //==========================================================
 //	Поверхность
 //==========================================================
-class ground
+class ground : public animation
 {
 protected:
 	static	fixed<>	*distTable,
-							*CSinTable,
-							*CCosTable;
+					*CSinTable,
+					*CCosTable;
 							
 	//-----------------------------------------------------
 	//	Номера групп текстур
@@ -78,7 +78,6 @@ protected:
 	{
 		water=0,
 		grass=1,
-		mud=grass,
 		sand=2,
 		specials=3
 	};
@@ -89,18 +88,16 @@ protected:
 		center_n=0xa,
 		block_n=0
 	};
-
+	
 	//----------------------------------------------------
 	// тукстуры поверхности
 	union texture
 	{
-		UInt8	id;	// номер
-
 		struct
 		{
-			UInt8	internal	:1,	// булева: внутренняя/нет
-					road		:1,	// булева: дорога/нет
-					terrain	:2,	// номер территории
+			UInt8	terrain		:2,	// номер территории
+					road		:1,	// булева: относится к дороге/нет
+					internal	:1,	// булева: внутренняя/нет
 					n			:4;	// номер клетки
 		}info;
 
@@ -110,21 +107,30 @@ protected:
 					cage	:4;	// номер клетки
 		}terrain;
 
-		// специальные территории - особый случай
-		struct
-		{
-			UInt8	n			:2,	// номер группы
-					terrain	:2,	// номер территории
-					cage		:4;	// номер клетки
-		}special;
+		UInt8	id;	// номер
 	};
+	
+	//-----------------------------------------------------------------	
+	// таблица сглаживаемых клеток дороги (используется при генерации карты)
+	static	struct smooth_cage_info
+	{
+		Int8	lo_join,	// в зависимости от присутствия рядом
+				hi_join;	// <- этих двух (индексы smooth), пулучим
+		texture	variant[4];	// 4 варианта одной клетки
+	}smooth_cages[8];
 
+	
+	//-----------------------------------------------------------------
 	static	texture	*map;		// карта поверхности (номера текстур)
 	static	color2	*textures[256];	// все текстуры
 	static	ground	*terrains[];		// указатели на пов-ти
-	static	int	n_textures;	// сколько текстур загружено
-	UInt8		first_id;	//	номер первой текстуры в группе
-	int		friction;	// коэффициент трения поверхности
+	static	int	n_grounds;	// сколько текстур загружено
+
+
+	//-----------------------------------------------------------------
+	// частные данные одной поверхности
+	UInt8		first_id;	// номер первой текстуры в группе
+	int			friction;	// коэффициент трения поверхности
 
 	//=====================================================================
 	// разложение параметра u
@@ -170,21 +176,34 @@ protected:
 	#undef MAP_MASK
 		return p[ u.coord.tex | (v.coord.tex<<(GROUP_TEXTURES_SHIFT-1)) ];
 	}
-
-	//------------------------------------------------------------
-public:
-	ground(int _friction);
-	virtual	~ground();
 	
-	void set(BitmapType *bmp);	// установка указателей на текстуры
+	//------------------------------------------------------------
 	static	texture	join_textures(texture current, texture left, texture right, texture down, texture up);
 	static	bool	join_textures(texture &current, texture other);
+
+	static	void normalize_road();
+	static	void normalize_road_conner(texture *p);
+	static	void draw_road_mark(texture *p);	// рисует белые линии на дороге
+	
+	static	texture	smooth_cage(Int8 current, Int8 left, Int8 right, Int8 down, Int8 up);
+	static	Int8	search_cage(texture current);
+	
+	static	void init_globals();
+	
+	void set_frame(int n);
+	
+	//------------------------------------------------------------
+public:
+	ground(UInt16 id=NULL, int _friction=10);
+	virtual	~ground();
+	
 	static	void	draw(register color2 *screen, const camera &cam);
 	static	void 	make_minimap(image &minimap);
 	static	void	unpack_ground(MemHandle h);
 	static	void	unpack_road(MemHandle h);
 	static	void	normalize_map();
 	static	void	process(unit *u, const real &time);
+	static	void	animate(const real &time);
 	
 	//========================================================
 	static inline	texture get_texture(const point<> &v)
@@ -198,41 +217,5 @@ public:
 		return get_texture(point<>( ((int)v.x)>>TEXTURE_SHIFT, ((int)v.y)>>TEXTURE_SHIFT ));
 	}
 };
-
-
-//==========================================================
-//	Неанимированая поверхность
-//==========================================================
-class static_ground : public ground
-{
-private:
-	MemHandle	handle;
-	BitmapType	*bmp;
-	
-public:
-	static_ground(UInt16 id, int _friction);
-	~static_ground();
-};
-
-
-
-
-//==========================================================
-//	Анимированная поверхность
-//==========================================================
-class anim_ground : public ground
-{
-private:
-	MemHandle	handle[N_FRAMES];
-	BitmapType	*bmp[N_FRAMES];
-	Int16			current;	// текущий кадр
-	real			wait;		// сколько ждать до смены кадров
-	
-public:
-	anim_ground(UInt16 id, int _friction);
-	~anim_ground();
-	void process(real time);	// прошло времени (сек)
-};
-
 
 #endif	// _GROUND_H_

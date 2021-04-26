@@ -4,7 +4,6 @@
 
   Author: Alexander Semenov <acmain@gmail.com>
 */
-
 #include <PalmOS.h>
 
 #include "Flat3D.h"
@@ -17,8 +16,7 @@
 static	car		*player_car;
 static	exterior	devil(&car_high, &car_med, &car_low, &car_solid);
 static	preview		*cam;
-static	image		*scr_img=NULL;
-static	BitmapType	*scr_bmp=NULL;
+static	image	*scr;
 static	player_prefs	prefs;
 
 //=================================================================
@@ -27,17 +25,8 @@ static	void init_preview()
 	prefs.Color=g_prefs.player.Color;
 	player_car=new car(NULL, &devil, &prefs, true);
 	cam=new preview(player_car, 20, 60);
-
-	if (!g_prefs.safe_mode)
-	{
-		scr_img=new image(size<>(SCREEN_WIDTH, 60));
-		scr_img->draw_type=image::Put;
-	}
-	else
-	{
-		Err	error;
-		scr_bmp=BmpCreate(SCREEN_WIDTH, 60, COLOR_SIZE, NULL, &error);
-	}
+	scr=new image(size<>(SCREEN_WIDTH, 60));
+	scr->draw_type=image::Put;
 }
 
 //=================================================================
@@ -45,10 +34,7 @@ static	void destroy_preview()
 {
 	delete cam;
 	delete player_car;
-	if (scr_img)
-		delete scr_img;
-	if (scr_bmp)
-		BmpDelete(scr_bmp);
+	delete scr;
 }
 
 
@@ -57,21 +43,10 @@ static	void car_preview(real time)
 {
 	cam->process(time);
 
-	if (!g_prefs.safe_mode)
-	{
-		scr_img->clear(0);
-		cam->draw((color*)(*scr_img));
-		color	*screen=(color*)BmpGetBits(WinGetBitmap(WinGetDisplayWindow()));
-		scr_img->draw(screen, point<>(0, 20));
-	}
-	else
-	{
-		color	*p=(color*)BmpGetBits(scr_bmp);
-		for (int i=0; i<BPP(SCREEN_WIDTH*60); i++)
-			p[i]=0;
-		cam->draw(p);
-		WinDrawBitmap(scr_bmp, 0, 20);
-	}	
+	scr->clear(0);
+	cam->draw((color*)(*scr));
+	color	*screen=(color*)BmpGetBits(WinGetBitmap(WinGetDisplayWindow()));
+	scr->draw(screen, point<>(0, 20));
 }
 
 

@@ -4,7 +4,6 @@
 
   Author: Alexander Semenov <acmain@gmail.com>
 */
-
 #include "object.h"
 #include "matrix.h"
 #include "cfg.h"

@@ -1,12 +1,9 @@
-// Flat3DMain.c
-//
-// main file for Flat3D
-//
-// This wizard-generated code is based on code adapted from the
-// stationery files distributed as part of the Palm OS SDK 4.0.
-//
-// Copyright (c) 1999-2000 Palm, Inc. or its subsidiaries.
-// All rights reserved.
+/* naPalm Racing
+
+  Copyright (C) 2004
+
+  Author: Alexander Semenov <acmain@gmail.com>
+*/
 
 #include <PalmOS.h>
 //#include <CWCallbackThunks.h>
@@ -15,6 +12,7 @@
 #include "Flat3DRsc.h"
 
 #include "fixed.h"
+#include	<stdarg.h>
 
 // ********************************************************************
 // Entry Points
@@ -31,7 +29,6 @@ Flat3DPreferenceType g_prefs;
 UInt16	prev_form_id=MenuForm;
 
 cpu_type	current_cpu;
-bool	os5_available;
 
 // MainFormHandleEventThunk
 //     holds callback thunk for main form event handler
@@ -43,7 +40,6 @@ bool	os5_available;
 // ********************************************************************
 
 // Define the minimum OS version we support
-#define os5Version    	 sysMakeROMVersion(5,0,0,sysROMStageDevelopment,0)
 #define ourMinVersion    sysMakeROMVersion(3,5,0,sysROMStageDevelopment,0)
 #define kPalmOS10Version sysMakeROMVersion(1,0,0,sysROMStageRelease,0)
 
@@ -275,6 +271,8 @@ static Err RomVersionCompatible(UInt32 requiredVersion, UInt16 launchFlags)
             (sysAppLaunchFlagNewGlobals | sysAppLaunchFlagUIApp)) ==
             (sysAppLaunchFlagNewGlobals | sysAppLaunchFlagUIApp))
         {
+            FrmAlert (RomIncompatibleAlert);
+
             // Palm OS 1.0 will continuously relaunch this app unless 
             // we switch to another safe one.
             if (romVersion <= kPalmOS10Version)
@@ -317,28 +315,19 @@ static UInt32 Flat3DPalmMain(
     Err error;
 
     error = RomVersionCompatible (ourMinVersion, launchFlags);
-    if (error)
-    {
-        FrmAlert(RomIncompatibleAlert);
-    	return error;
-    }
-    
-    UInt32 romVersion;
+    if (error) return (error);		
+
     switch (cmd)
     {
     case sysAppLaunchCmdNormalLaunch:
-        FtrGet(sysFtrCreator, sysFtrNumROMVersion, &romVersion);
-    	os5_available=(romVersion>=os5Version);
-
         error = AppStart();
-        if (error)
+        if (error) 
             return error;
 
         // start application by opening the main form
         // and then entering the main event loop
         FrmGotoForm(MenuForm);
         AppEventLoop();
-        
         AppStop();
         break;
 
@@ -366,11 +355,36 @@ static UInt32 Flat3DPalmMain(
 //
 // RETURNED:
 //     Result of launch, errNone if all went OK
-
 UInt32 PilotMain(UInt16 cmd, MemPtr cmdPBP, UInt16 launchFlags)
 {
-    return Flat3DPalmMain(cmd, cmdPBP, launchFlags);
+	try
+	{
+	    return Flat3DPalmMain(cmd, cmdPBP, launchFlags);
+	}
+
+	catch(...)
+	{
+	}
+	return appErrorClass;
 }
+
+
+
+//=============================================================
+void error(const char *module, int line, const char *str)//, ...)
+{
+/*
+	char	str[1024];
+	va_list	arglist;
+	va_start( arglist, fmt );
+	StrPrintF( str, fmt, arglist );
+	va_end ( arglist );
+*/
+	char	s[5];
+	FrmCustomAlert(RuntimeErrorAlert, str, module, StrIToA(s, line));
+	throw -1;
+}
+
 
 // turn a5 warning off to prevent it being set off by C++
 // static initializer code generation

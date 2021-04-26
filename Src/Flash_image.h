@@ -4,7 +4,6 @@
 
   Author: Alexander Semenov <acmain@gmail.com>
 */
-
 #ifndef _FLASH_IMAGE_H_
 #define _FLASH_IMAGE_H_
 

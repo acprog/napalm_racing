@@ -4,7 +4,6 @@
 
   Author: Alexander Semenov <acmain@gmail.com>
 */
-
 #include <PalmOS.h>
 
 #include "Flat3D.h"
@@ -102,8 +101,6 @@ Boolean MainFormHandleEvent(EventType * eventP)
 	FormType * frmP;
 	static	UInt32	ticks=0;
 	static	WinHandle	win=(WinHandle)FrmGetFormPtr(MainForm);
-	static	BitmapType	*screen_for_os5=NULL;
-	static	Err	error;
 
 	switch (eventP->eType)
 	{
@@ -124,9 +121,6 @@ Boolean MainFormHandleEvent(EventType * eventP)
 		return MainFormDoCommand(eventP->data.menu.itemID);
 
 	case frmOpenEvent:
-		if (g_prefs.safe_mode)
-			screen_for_os5=BmpCreate(SCREEN_WIDTH, SCREEN_HEIGHT, COLOR_SIZE, NULL, &error);
-		
 		frmP = FrmGetActiveForm();
 		FrmDrawForm(frmP);
 //		prev_form_id=MainForm;
@@ -137,11 +131,6 @@ Boolean MainFormHandleEvent(EventType * eventP)
 		pause=true;
 		delete World;
 		World=NULL;
-		if (screen_for_os5)
-		{
-			 BmpDelete(screen_for_os5);
-			 screen_for_os5=NULL;
-		}
 		break;
             
 	case frmUpdateEvent:
@@ -159,16 +148,8 @@ Boolean MainFormHandleEvent(EventType * eventP)
 		World->process(real(TimGetTicks()-ticks)/=SysTicksPerSecond());
 		ticks=TimGetTicks();
 		
-		if (!g_prefs.safe_mode)
-		{
-			World->draw((color*)WinScreenLock(winLockDontCare));
-			WinScreenUnlock();
-		}
-		else if (screen_for_os5)
-		{
-			World->draw((color*)BmpGetBits(screen_for_os5));
-			WinDrawBitmap(screen_for_os5, 0, 0);
-		}
+		World->draw((color*)WinScreenLock(winLockDontCare));
+		WinScreenUnlock();
 	}
     
    return handled;

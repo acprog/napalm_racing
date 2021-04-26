@@ -4,7 +4,6 @@
 
   Author: Alexander Semenov <acmain@gmail.com>
 */
-
 #include <PalmOS.h>
 
 #include "Flat3D.h"
@@ -133,16 +132,8 @@ Boolean ChampionshipFormHandleEvent(EventType * eventP)
 	case frmOpenEvent:
 		for (int i=0; i<9; i++)
 			players_list[i]=new char[60];
-
-		// список трасс сильно уменьшился (удалены трассы)
-		if (g_prefs.championship.curr_track>=n_tracks)
-		{
-			g_prefs.championship.curr_track=0;
-			end_of_championship();
-		}
-		 
 		if (prev_form_id==RaceResultsForm)	// проехана трасса
-		{	
+		{
 			int n=++g_prefs.championship.curr_track;
 
 			player_prefs	*p=g_prefs.championship.players;

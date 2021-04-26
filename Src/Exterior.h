@@ -4,7 +4,6 @@
 
   Author: Alexander Semenov <acmain@gmail.com>
 */
-
 #ifndef	_EXTERIOR_H_
 #define	_EXTERIOR_H_
 

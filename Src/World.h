@@ -4,7 +4,6 @@
 
   Author: Alexander Semenov <acmain@gmail.com>
 */
-
 #ifndef _WORLD_H_
 #define _WORLD_H_
 
@@ -17,6 +16,7 @@
 #include "image.h"
 #include "flash_image.h"
 #include "flat3d.h"
+#include "database.h"
 
 #include "list"
 using std::list;
@@ -48,35 +48,49 @@ class world
 private:
 	list<object*>	objects;	// все объекты
 	list<unit*>		units;	// динамические объекты
-	list<car*>		cars;	// динамические объекты
+	list<car*>		cars;	// игроки
 		// в основном такое разделение для увеличения эффективности
-
-	class sky_image : public res_image
-	{
-	public:
-		sky_image(UInt16 id)
-			:res_image(id){};
-		virtual ~sky_image(){};
-		void draw(color *screen, Angle angle);
-	}sky;
 
 	image	minimap;
 
-	// поверхности
-	anim_ground		water_join;
-	static_ground	grass_join,
-						sand,
-						special,
-						// дороги
-						bridge,
-						road,
-						br_road;
-	// для создания неиспользуемых территорий
-	// производить от ground
-	ground			special2,
-						water;
-	static_ground	grass;
+	//-------------------------------------------------------
+	// графика мира: небо+поверхность
+	database		*world_base;
 
+	//	небо+анимация на нем
+	class sky_image : public res_image
+	{
+	private:
+		animation	**anims;
+		int			n_anims;
+	
+	public:
+		sky_image(UInt16 id, database *db);
+		virtual ~sky_image();
+		void draw(color *screen, Angle angle);
+		void animate(const real &time);
+	}sky;
+
+	// поверхности идут в определенном порядке
+	ground	water_join,
+			unused_water,	// у неиспользуемых конструктор по-умолчанию
+			bridge_join,
+			unused_bridge,
+			grass_join,
+			grass,
+			road_join0,
+			road_join3,
+			sand,
+			unused_sand,
+			road_join1,
+			unused_road,
+			special_join,	// требуют сопряжения к ним других территорий
+			special,
+			road_join2,
+			road_marks0;
+
+	//-------------------------------------------------------
+	
 	exterior	devil;
 
 	car		*player;
@@ -95,9 +109,6 @@ private:
 					small_numbers,
 					*active_font;
 
-	//=====================================================================
-//	void draw_sky(UInt32	*screen);
-	
 //=====================================================
 public:
 	world(db_info *track, int n_laps, player_prefs *players, int n_players, int opponents_skill, bool demo=false);

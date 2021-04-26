@@ -4,7 +4,6 @@
 
   Author: Alexander Semenov <acmain@gmail.com>
 */
-
 #ifndef	_CAR_H_
 #define	_CAR_H_
 
@@ -33,8 +32,8 @@ private:
 				next_position;	// место, которое займет следующий
 								// игрок, доехав до финиша
 	player_prefs	*prefs;
-	static	res_image	final_lap,
-						rotate_back;
+	static	res_image	*final_lap,
+						*rotate_back;
 						
 	Angle	ang_to_target;
 

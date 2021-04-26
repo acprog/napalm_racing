@@ -4,7 +4,6 @@
 
   Author: Alexander Semenov <acmain@gmail.com>
 */
-
 #include "unit.h"
 #include "fixed.h"
 #include "cfg.h"

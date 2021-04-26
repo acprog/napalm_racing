@@ -4,15 +4,12 @@
 
   Author: Alexander Semenov <acmain@gmail.com>
 */
-
 #include <PalmOS.h>
 
 #include "Flat3D.h"
 #include "Flat3DRsc.h"
 
 #include "world.h"
-
-extern	bool	os5_available;
 
 //=================================================================
 static	void options_form()
@@ -59,10 +56,6 @@ static bool select_control(UInt16 id)
 	case MenuOptionsButton:
 		options_form();
 		return true;
-		
-	case MenuSafeModeCheckbox:
-		g_prefs.safe_mode=!g_prefs.safe_mode;
-		return true;
 	}
 
 	return false;
@@ -81,7 +74,6 @@ Boolean MenuFormHandleEvent(EventType * eventP)
 //		SndPlaySmfResource('tSMF', 2001, prefGameSoundVolume);
 		FormType	*frmP=FrmGetActiveForm();
 		FrmCopyLabel(frmP, MenuBuildDateLabel, __DATE__);
-		CtlSetValue(GetObjectPtr<ControlType>(MenuSafeModeCheckbox, frmP), g_prefs.safe_mode);
 		FrmDrawForm(frmP);
 		prev_form_id=MenuForm;
 		return true;
@@ -102,8 +94,6 @@ void DefaultCfg()
 	g_prefs.small_font=true;
 	g_prefs.show_fps=false;
 	g_prefs.kmh_speed=true;
-
-	g_prefs.safe_mode=os5_available;
 
 	g_prefs.minimap.small=true;
 	g_prefs.minimap.transparent=true;

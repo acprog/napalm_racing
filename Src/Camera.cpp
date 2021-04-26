@@ -4,7 +4,6 @@
 
   Author: Alexander Semenov <acmain@gmail.com>
 */
-
 #include "camera.h"
 #include "world.h"
 #include "Flat3D.h"

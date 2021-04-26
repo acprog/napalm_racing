@@ -4,7 +4,6 @@
 
   Author: Alexander Semenov <acmain@gmail.com>
 */
-
 #include "world.h"
 #include "Flat3DRsc.h"
 #include "Flat3D.h"
@@ -16,18 +15,21 @@ enum world_state	state;
 //	Плоский мир
 //=====================================================
 world::world(db_info *track, int n_laps, player_prefs *players, int n_players, int opponents_skill, bool demo)
-	:grass_join	(GrassJoinBitmapFamily, 22)
+	:world_base	(new database(WORLD_TYPE, appFileCreator))
 	,water_join	(WaterBitmapFamily, 30)
+	,bridge_join(BridgeBitmapFamily, 14)
+	,grass_join	(GrassJoinBitmapFamily, 22)
+	,grass		(GrassBitmapFamily, 22)
+	,road_join0	(RoadBitmapFamily, 10)
+	,road_marks0(RoadMarks0BitmapFamily, 10)
 	,sand		(SandBitmapFamily, 18)
+	,road_join1	(BrRoadBitmapFamily, 12)
+	//special_join,
 	,special	(SpecialBitmapFamily, 1)
-	,bridge	(BridgeBitmapFamily, 14)
-	,br_road	(BrRoadBitmapFamily, 12)
-	,road		(RoadBitmapFamily, 10)
-	,special2(1)
-	,water	(30)
-	,grass	(GrassBitmapFamily, 22)
+	,road_join2	(Road3BitmapFamily, 10)
+	,road_join3	(Road4BitmapFamily, 10)
 	,minimap	(size<>(MINIMAP_SIZE, MINIMAP_SIZE))
-	,sky	(SkyBitmapFamily)
+	,sky	(SkyBitmapFamily, world_base)
 	,devil	(&car_high, &car_med, &car_low, &car_solid)
 	,numbers	(NumbersBitmapFamily, '-', '9', 8)
 	,small_numbers	(SmallNumbersBitmapFamily, '-', '9', 8)
@@ -42,6 +44,7 @@ world::world(db_info *track, int n_laps, player_prefs *players, int n_players, i
 	,big_go		(GoBitmapFamily)
 	,big_finish	(FinishBitmapFamily)
 {
+	delete	world_base;
 	sky.draw_type=image::Put;
 
 	big_three.draw_type=
@@ -262,7 +265,8 @@ void world::process(const real &time)
 
 	cam.process(time);
 
-	water_join.process(time);
+	ground::animate(time);//water_join.process(time);
+	sky.animate(time);
 	
 	//--------------------------------------------------
 	if (!g_prefs.mute_sound)
@@ -281,54 +285,6 @@ void world::process(const real &time)
 	}
 }
 
-
-//=====================================================================
-void world::sky_image::draw(color *screen, Angle angle)
-{
-	// миним. шаг картинки - 4 пикс.
-	UInt32	*s=(UInt32*)screen;
-	UInt32	*b=(UInt32*)bits;
-	Int32	y, x,
-			o=(-angle>>6)&(SKY_WIDTH-1);
-
-	((UInt16*)b)+=BPP(SKY_WIDTH-o)/2;
-	for (y=SKY_HEIGHT; y--; b+=BPP(SKY_WIDTH-SCREEN_WIDTH)/4)
-		if (o<SCREEN_WIDTH)	// два куска
-		{
-			for (x=BPP(o)/4; x--;)
-				(*s++)=*(b++);
-			b-=BPP(SKY_WIDTH)/4;
-			for (x=BPP(SCREEN_WIDTH)/4-BPP(o)/4; x--;)
-				(*s++)=*(b++);
-			b+=BPP(SKY_WIDTH)/4;
-		}
-		else	// один
-			for (x=BPP(SCREEN_WIDTH)/4; x--;)
-				(*s++)=*(b++);
-/**/
-/*
-	// миним. шаг картинки - 4 пикс.
-	UInt32	*s=(UInt32*)screen;
-	UInt32	*b=(UInt32*)bits;
-	Int32	y, x,
-			o=(-angle>>6)&(SKY_WIDTH-1);
-
-	((UInt16*)b)+=(SKY_WIDTH-o)/4;
-	for (y=SKY_HEIGHT; y--; b+=(SKY_WIDTH-SCREEN_WIDTH)/8)
-		if (o<SCREEN_WIDTH)	// два куска
-		{
-			for (x=o/8; x--;)
-				(*s++)=*(b++);
-			b-=SKY_WIDTH/8;
-			for (x=SCREEN_WIDTH/8-o/8; x--;)
-				(*s++)=*(b++);
-			b+=SKY_WIDTH/8;
-		}
-		else	// один
-			for (x=SCREEN_WIDTH/8; x--;)
-				(*s++)=*(b++);
-/**/
-}
 
 
 //=====================================================================
@@ -406,3 +362,92 @@ void world::change_handing(float dh)
 	for (car_iter i=cars.begin(); i!=cars.end(); i++)
 		(*i)->handing=dh*(float)(*i)->handing;
 }
+
+
+
+
+
+//=====================================================================
+//	Небо+анимация на нем
+//=====================================================================
+world::sky_image::sky_image(UInt16 id, database *db)
+	:res_image	(id, db)
+	,anims		(NULL)
+	,n_anims	(ResLoadConstant(id+1))
+{
+	anims=new animation*[n_anims];
+	for (int i=0; i<n_anims; i++)
+	{
+		anims[i]=new animation(id+1100, db, this);
+		anims[i]->set_frame(0);
+	}
+}
+
+
+//=====================================================================
+world::sky_image::~sky_image()
+{
+	for (int i=0; i<n_anims; i++)
+		delete anims[i];
+	delete[] anims;
+//	db->attach(10000, 'Tbmp', );
+}
+
+
+//=====================================================================
+void world::sky_image::animate(const real &time)
+{
+	for (int i=0; i<n_anims; i++)
+		anims[i]->anim(time);
+}
+
+
+//=====================================================================
+void world::sky_image::draw(color *screen, Angle angle)
+{
+	// миним. шаг картинки - 4 пикс.
+	UInt32	*s=(UInt32*)screen;
+	UInt32	*b=(UInt32*)bits;
+	Int32	y, x,
+			o=(-angle>>6)&(SKY_WIDTH-1);
+
+	((UInt16*)b)+=BPP(SKY_WIDTH-o)/2;
+	for (y=SKY_HEIGHT; y--; b+=BPP(SKY_WIDTH-SCREEN_WIDTH)/4)
+		if (o<SCREEN_WIDTH)	// два куска
+		{
+			for (x=BPP(o)/4; x--;)
+				(*s++)=*(b++);
+			b-=BPP(SKY_WIDTH)/4;
+			for (x=BPP(SCREEN_WIDTH)/4-BPP(o)/4; x--;)
+				(*s++)=*(b++);
+			b+=BPP(SKY_WIDTH)/4;
+		}
+		else	// один
+			for (x=BPP(SCREEN_WIDTH)/4; x--;)
+				(*s++)=*(b++);
+/**/
+/*
+	// миним. шаг картинки - 4 пикс.
+	UInt32	*s=(UInt32*)screen;
+	UInt32	*b=(UInt32*)bits;
+	Int32	y, x,
+			o=(-angle>>6)&(SKY_WIDTH-1);
+
+	((UInt16*)b)+=(SKY_WIDTH-o)/4;
+	for (y=SKY_HEIGHT; y--; b+=(SKY_WIDTH-SCREEN_WIDTH)/8)
+		if (o<SCREEN_WIDTH)	// два куска
+		{
+			for (x=o/8; x--;)
+				(*s++)=*(b++);
+			b-=SKY_WIDTH/8;
+			for (x=SCREEN_WIDTH/8-o/8; x--;)
+				(*s++)=*(b++);
+			b+=SKY_WIDTH/8;
+		}
+		else	// один
+			for (x=SCREEN_WIDTH/8; x--;)
+				(*s++)=*(b++);
+/**/
+}
+
+

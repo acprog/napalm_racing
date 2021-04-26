@@ -4,7 +4,6 @@
 
   Author: Alexander Semenov <acmain@gmail.com>
 */
-
 #ifndef	_UNIT_H_
 #define	_UNIT_H_
 

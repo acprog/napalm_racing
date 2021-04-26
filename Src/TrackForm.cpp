@@ -4,7 +4,6 @@
 
   Author: Alexander Semenov <acmain@gmail.com>
 */
-
 #include <PalmOS.h>
 
 #include "Flat3D.h"
@@ -41,19 +40,8 @@ db_info *select_track(int &tr, UInt16 label)
 	h=DmGetRecord(db, --index);
 
 	packed_1bit	*buffer=new packed_1bit[MAP_SIZE*MAP_SIZE/8];
-
-	image		*minimap_img=NULL;
-	BitmapType	*minimap_bmp=NULL;
-	if (!g_prefs.safe_mode)
-	{
-		minimap_img=new image(size<>(64, 64));
-		minimap_img->draw_type=image::Put;
-	}
-	else
-	{
-		Err	error;
-		minimap_bmp=BmpCreate(64, 64, COLOR_SIZE, NULL, &error);
-	}
+	image	*minimap=new image(size<>(64, 64));
+	minimap->draw_type=image::Put;
 
 	packed_1bit	*src=buffer;
 	MemMove(buffer, MemHandleLock(h), MAP_SIZE*MAP_SIZE/8);
@@ -62,10 +50,7 @@ db_info *select_track(int &tr, UInt16 label)
 	int	x, y;
 #ifdef COLOR_GRAY
 	#define COLOR(n)	(1<<(src[0]._##n##0+src[0]._##n##1+src[MAP_SIZE/16]._##n##0+src[MAP_SIZE/16]._##n##1))-1;
-
-	packed_4bit	*dst=(packed_4bit*)(g_prefs.safe_mode
-		?	BmpGetBits(minimap_bmp)
-		:	(color*)*minimap_img);
+	packed_4bit	*dst=(packed_4bit*)(color*)*minimap;
 
 	for (int y=0; y<MAP_SIZE/2; y++, src+=MAP_SIZE/16)
 		for (int x=0; x<MAP_SIZE/16; src++, dst+=2, x++)
@@ -85,9 +70,7 @@ db_info *select_track(int &tr, UInt16 label)
 	color	colors[]={0x00, 0x25, 0x38, 0x5d, 0x64};
 //	#define COLOR(n)	(0xe0-2*(src[0]._##n##0+src[0]._##n##1+src[MAP_SIZE/16]._##n##0+src[MAP_SIZE/16]._##n##1));
 	#define COLOR(n)	colors[src[0]._##n##0+src[0]._##n##1+src[MAP_SIZE/16]._##n##0+src[MAP_SIZE/16]._##n##1];
-	color	*dst=(color*)(g_prefs.safe_mode
-		?	BmpGetBits(minimap_bmp)
-		:	*minimap_img);
+	color	*dst=*minimap;
 
 	for (int y=0; y<MAP_SIZE/2; y++, src+=MAP_SIZE/16)
 		for (int x=0; x<MAP_SIZE/16; src++, dst+=8, x++)
@@ -101,7 +84,6 @@ db_info *select_track(int &tr, UInt16 label)
 			dst[6]=COLOR(6);
 			dst[7]=COLOR(7);
 		}
-
 #endif
 
 	#undef COLOR
@@ -109,19 +91,11 @@ db_info *select_track(int &tr, UInt16 label)
 	DmReleaseRecord(db, index, true);
 	DmCloseDatabase(db);
 	
-	delete[] buffer;
+	color	*screen=(color*)BmpGetBits(WinGetBitmap(WinGetDisplayWindow()));
+	minimap->draw(screen, point<>(96, 40));
 
-	if (!g_prefs.safe_mode)
-	{
-		color	*screen=(color*)BmpGetBits(WinGetBitmap(WinGetDisplayWindow()));
-		minimap_img->draw(screen, point<>(96, 40));
-		delete minimap_img;
-	}
-	else
-	{
-		WinDrawBitmap(minimap_bmp, 96, 40);
-		BmpDelete(minimap_bmp);
-	}
+	delete[] buffer;
+	delete minimap;
 	
 	return base;
 }

@@ -11,6 +11,10 @@
 #include "geometric.h"
 #include "cfg.h"
 
+// необходимы для animation
+#include "fixed.h"
+#include "database.h"
+
 //==============================================================
 //	Изображение
 //==============================================================
@@ -27,11 +31,15 @@ protected:
 	void put(color *screen, const point<> &p);	// наложение
 	void or_(color *screen, const point<> &p);
 
-
 public:
 	image();
 	image(const size<> &s, color *_bits=NULL, int _offset=0);
 	virtual	~image();
+
+	void copy(const image &img);	// копирование изображения
+
+	// "наклеить" на фоновый рисунок
+	void	stick_on(image *img, color transparent);
 
 	//----------------------------------------------------------
 	void clear(color fill)
@@ -123,18 +131,17 @@ public:
 class res_image : public image
 {
 private:
-	MemHandle	handle;
 	BitmapType	*bitmapP;
 
 public:
-	res_image(UInt16 id);
+	res_image(UInt16 id, database *db=NULL);
 	virtual	~res_image();
 
 	//----------------------------------------------------
 	inline	void WinDrawBitmap(const point<> &p)
 	{
 		::WinDrawBitmap(bitmapP, p.x, p.y);
-	}
+	}	
 };
 
 
@@ -157,15 +164,7 @@ public:
 	{
 		bits=NULL;	// что-бы не удалил лишнего
 	}
-	/*
-	//----------------------------------------------------------
-	void resize_x(image *parent, int x, int _width)
-	{
-		bits=parent->bits+BPP(x);
-		width=_width;
-		offset=parent->width-width;
-	}
-	/**/
+
 	friend class font;
 };
 
@@ -188,6 +187,33 @@ public:
 	void draw(color *screen, point<> p, const char *str);
 };
 
+
+
+//==============================================================
+//	Анимация
+// цель: единый интерфейс для:
+//	 1. анимации на небе (есть фоновый рисунок)
+//	 2. анимации текстур (фоновым м/б первый кадр)
+//==============================================================
+class animation
+{
+private:
+	segment_image	*window;// окно для отрисовки на фоновый рисунок.
+	int			n_frames,	// кол-во кадров
+				current;	// текущий
+	real		wait,		// сколько осталось ждать до смены кадров
+				delay;		// пауза между кадрами
+
+protected:
+	res_image	**frames;	// кадры
+				
+	//--------------------------------------------------------
+public:
+	animation(UInt16 id, database *db=NULL, res_image *background=NULL);
+	virtual	~animation();
+	void anim(const real &time);
+	virtual	void set_frame(int n);
+};
 
 
 #endif	// _IMAGE_H_

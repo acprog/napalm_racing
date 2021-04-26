@@ -4,7 +4,6 @@
 
   Author: Alexander Semenov <acmain@gmail.com>
 */
-
 #ifndef _MATRIX_H_
 #define _MATRIX_H_
 
@@ -69,6 +68,7 @@ public:
 	// последовательные повороты вокруг X, Y, Z
 	matrix(Angle angle_x, Angle angle_y=0, Angle angle_z=0)
 	{
+	// тут последовательность неправильная. потом заменить
 		T	cosinus, sinus, zero=0;
 		clear();
 

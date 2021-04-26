@@ -1,12 +1,9 @@
-// Flat3D.h
-//
-// header file for Flat3D
-//
-// This wizard-generated code is based on code adapted from the
-// stationery files distributed as part of the Palm OS SDK 4.0.
-//
-// Copyright (c) 1999-2000 Palm, Inc. or its subsidiaries.
-// All rights reserved.
+/* naPalm Racing
+
+  Copyright (C) 2004
+
+  Author: Alexander Semenov <acmain@gmail.com>
+*/
 
 #ifndef FLAT3D_H_
 #define FLAT3D_H_
@@ -44,8 +41,7 @@ typedef struct Flat3DPreferenceType
 	bool		mute_sound;			// убрать звук
 	bool		small_font;			// мелкий шрифт на экране
 	bool		show_fps,
-				kmh_speed,
-				safe_mode;		// безопасный режим
+				kmh_speed;
 	struct		// маленькая карта
 	{
 		bool		small;		
@@ -97,6 +93,14 @@ void make_players(player_prefs *p, int n_players, bool demo=false);
 void start_race(int track, int n_laps, int n, int skill, player_prefs *p=NULL, bool demo=false);
 db_info *select_track(int &tr, UInt16 label);
 
+// fatal error message
+extern	void error(const char *module, int line, const char *fmt);//, ...);
+#define	ERROR(args)	error(__FILE__, __LINE__, args)
+
+#define	MSG		FrmAlert(MsgAlert)
+#define	MSG1(one)	FrmCustomAlert(MsgAlert, one, NULL, NULL)
+#define	MSG2(one, two)	FrmCustomAlert(MsgAlert, one, two, NULL)
+#define	MSG3(one, three)	FrmCustomAlert(MsgAlert, one, two, three)
 
 // ********************************************************************
 // Global variables
@@ -109,13 +113,12 @@ extern	class world	*World;
 
 extern	int	n_tracks;
 
-//extern	bool	os5_available;
-
 // ********************************************************************
 // Internal Constants
 // ********************************************************************
 #define TRACK_CREATOR			'ACnr'
 #define TRACK_TYPE				'Trek'
+#define WORLD_TYPE				'Wrld'
 
 #define appFileCreator			'ACnr'
 #define appName					"Napalm Racing"
@@ -130,6 +133,33 @@ extern	int	n_tracks;
 #define OptionsLeaveTrack                         1001
 #define OptionsResetCar                           1002
 #define OptionsControls 						  1003
+
+#define SandBitmapFamily                          20800
+#define WaterBitmapFamily                         20000
+#define BrRoadBitmapFamily                        21000
+#define GrassJoinBitmapFamily                     20400
+#define RoadBitmapFamily                          20600
+#define SkyBitmapFamily                           10000
+#define SpecialBitmapFamily                       21200
+#define BridgeBitmapFamily                        20200
+#define GrassBitmapFamily                         20500
+#define Road3BitmapFamily                         20700
+#define Road4BitmapFamily                         21400
+#define RoadMarks0BitmapFamily                    21500
+/*
+#define SandBitmapFamily                          1500
+#define WaterBitmapFamily                         1200
+#define BrRoadBitmapFamily                        2000
+#define GrassJoinBitmapFamily                     1300
+#define RoadBitmapFamily                          1000
+#define SkyBitmapFamily                           1100
+#define SpecialBitmapFamily                       1900
+#define BridgeBitmapFamily                        2100
+#define GrassBitmapFamily                         2200
+#define Road3BitmapFamily                         20000
+#define Road4BitmapFamily                         20100
+#define RoadMarks0BitmapFamily                    20200
+/**/
 
 // ********************************************************************
 // Helper template functions

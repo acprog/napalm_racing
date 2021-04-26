@@ -4,7 +4,6 @@
 
   Author: Alexander Semenov <acmain@gmail.com>
 */
-
 #include "car.h"
 #include "cfg.h"
 #include "flat3d.h"
@@ -18,8 +17,8 @@ car::way_params	car::way;
 int	car::n_cars=0,
 		car::n_laps=0,
 		car::next_position=1;
-res_image	car::final_lap(FinalLapBitmapFamily),
-			car::rotate_back(RotateBackBitmapFamily);
+res_image	*car::final_lap=NULL,
+			*car::rotate_back=NULL;
 
 //=========================================================
 //	машина
@@ -44,8 +43,12 @@ car::car(world *w, exterior *_ext, player_prefs *_prefs, bool human_player, floa
 	if (n_cars++==0)
 	{
 		next_position=1;
-		rotate_back.draw_type=
-		final_lap.draw_type=image::Or;
+		
+		final_lap=new res_image(FinalLapBitmapFamily);
+		rotate_back=new res_image(RotateBackBitmapFamily);
+
+		rotate_back->draw_type=
+		final_lap->draw_type=image::Or;
 	}
 	prefs->position=0;
 }
@@ -54,7 +57,12 @@ car::car(world *w, exterior *_ext, player_prefs *_prefs, bool human_player, floa
 //=========================================================
 car::~car()
 {
-	n_cars--;
+	if (--n_cars==0)
+	{
+		delete final_lap;
+		delete rotate_back;
+	}
+	
 	if (prefs->position==0)
 		prefs->position=position;
 }
@@ -263,7 +271,7 @@ void car::draw_info(color *screen, font *f, bool selected)
 		
 		// круг
 		if (lap>=n_laps)
-			final_lap.draw(screen, point<>(4, 40));
+			final_lap->draw(screen, point<>(4, 40));
 		else
 		{
 			StrPrintF(str, "%d/%d", lap, n_laps);
@@ -276,7 +284,7 @@ void car::draw_info(color *screen, font *f, bool selected)
 		
 		// повернись назад
 		if (ang_to_target>(ANGLE_PI)-ANGLE_PI/4 && ang_to_target<ANGLE_PI+ANGLE_PI/4)
-			rotate_back.draw(screen, point<>(72, 30));
+			rotate_back->draw(screen, point<>(72, 30));
 	}
 }
 

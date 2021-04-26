@@ -4,7 +4,6 @@
 
   Author: Alexander Semenov <acmain@gmail.com>
 */
-
 #include "model.h"
 #include "cfg.h"
 #include "algorithm.h"

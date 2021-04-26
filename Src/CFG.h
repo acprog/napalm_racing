@@ -4,7 +4,6 @@
 
   Author: Alexander Semenov <acmain@gmail.com>
 */
-
 #ifndef _CFG_H_
 #define _CFG_H_
 
@@ -41,21 +40,21 @@ extern cpu_type	current_cpu;
 	typedef	unsigned char	color;	// тип цвета
 	typedef	unsigned char	color2;	// тип сдвоенный цвет
 	#define	BPP(x)	((x)>>1)	// 4бита
-	#define	COLOR_SIZE	4
+	#define	COLOR_SIZE		4
 #endif
 
 #ifdef COLOR_8
 	typedef	unsigned char	color;	// тип цвета
 	typedef	unsigned short	color2;	// тип сдвоенный цвет
 	#define	BPP(x)	(x)	// 8 бит
-	#define	COLOR_SIZE	8
+	#define	COLOR_SIZE		8
 #endif
 
 #ifdef COLOR_16
 	typedef	unsigned short	color;	// тип цвета
 	typedef	unsigned long	color2;	// тип сдвоенный цвет
 	#define	BPP(x)	(x)	// 16 бит
-	#define	COLOR_SIZE	16
+	#define	COLOR_SIZE		16
 #endif
 
 #define	SCREEN_OFFSET(x, y)	BPP( (x)+(y)*SCREEN_WIDTH )
@@ -111,9 +110,14 @@ extern cpu_type	current_cpu;
 #define	FRICTION_CROSS	350	//300
 
 // коэффициенты удара
+#define	PUSH_X		5
+#define	PUSH_Y		5
+#define	PUSH_ANGLE	11
+/*
 #define	PUSH_X		7
 #define	PUSH_Y		7
 #define	PUSH_ANGLE	15
+/**/
 
 // параметры трассы
 #define	HARD_OF_BORDER	3

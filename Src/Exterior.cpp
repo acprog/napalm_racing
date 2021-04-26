@@ -4,7 +4,6 @@
 
   Author: Alexander Semenov <acmain@gmail.com>
 */
-
 #include "exterior.h"
 
 projected_point exterior::immovable[MAX_VERTEXES];

@@ -4,7 +4,6 @@
 
   Author: Alexander Semenov <acmain@gmail.com>
 */
-
 #include <PalmOS.h>
 
 #include "Flat3D.h"
@@ -161,14 +160,11 @@ Boolean SingleRaceFormHandleEvent(EventType * eventP)
 	case frmOpenEvent:
 		prev_form_id=SingleRaceForm;
 
-		if (g_prefs.single_race.curr_track>=n_tracks)
-			g_prefs.single_race.curr_track=0;
-		
 		char	str[128];
 		FormType	*frmP=FrmGetActiveForm();
 		StrPrintF(str, 
 		#ifdef LANG_RUS
-			g_prefs.single_race.n_laps<5 ? "%s, %d круга" : "%s, %d кругов",
+			"%s, %d кругов", 
 		#endif		
 		#ifdef LANG_ENG
 			"%s, %d laps", 

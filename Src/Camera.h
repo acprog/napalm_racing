@@ -4,7 +4,6 @@
 
   Author: Alexander Semenov <acmain@gmail.com>
 */
-
 #ifndef	_CAMERA_H_
 #define	_CAMERA_H_
 
