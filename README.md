@@ -1,19 +1,19 @@
-Трехмерные гонки Napalm Racing
+# 3D Race game Napalm Racing
 
-Об игре:
-  Вид от третьего лица
-  Текстурированая и анимированная поверхность (реки, дороги, итп)
-	Векторные машины разных расцветок
-	Физика поведения машины на трассе и столкновения друг с другом
-	Возможность загрузки новых трасс
-	Два режима игры: быстрый заезд и чемпионат.
-	Поддержка 4х и 8-ми битного цвета.
+Game features are:
+	3D third purson race
+	Textured and animated surface (river, road, etc)
+	Vector scaled cars of various coloration
+	Realistic physics and collision detection
+	Opportunity of loading of new tracks
+	Two modes of game: single race and championship.
+	Support 4 and 8-bit color.
 
-Системные требования:
-  PalmOS 3.5.2
-	Поддержка 4х битного цвета
-	16МГц процессор
+The system requirements:
+	PalmOS 3.5.2
+	Support 4-bit greyscale
+	16MHz the processor
 
-Рекомендуется:
-  33 МГц процессор (очень желательно)
-	8-ми битный цвет
+It is recommended:
+	33 MHz the processor 
+	8-bit color.
